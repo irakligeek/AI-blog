@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  a:hover{
+    @apply underline;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading my-6 font-bold;
+    @apply text-slate-800
+  }
+  h1{
+    @apply text-3xl;
+  }
+  h2{
+    @apply text-2xl;
+  }
+  h3{
+    @apply text-xl;
+  }
+  h4{
+    @apply text-lg;
+  }
+  p{
+    @apply my-2
+  }
+  ul, ol{
+    @apply my-4
+  }
+  li {
+    list-style-type: disc;
+  }
+  ol{
+    list-style-type: decimal
+  }
+  li{
+    @apply my-2
+  }
+}
+
+@layer components {
+  .btn {
+    @apply hover:no-underline bg-green-600 block
+        w-full text-center text-white cursor-pointer 
+        uppercase px-4 py-2 rounded-md hover:bg-green-700 
+        transition-colors max-w-md m-auto;
+  }
+    
+}
