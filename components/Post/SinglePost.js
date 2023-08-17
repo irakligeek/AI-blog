@@ -1,7 +1,16 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHashtag } from "@fortawesome/free-solid-svg-icons";
 
-export default function SinglePost({ content, meta, title, keywords }) {
+export default function SinglePost({
+  content,
+  meta,
+  title,
+  keywords,
+  setShowDeleteConfirm,
+  showDeleteConfirm,
+  handlePostDelete,
+}) {
+  
   return (
     <div className=" overflow-auto h-full">
       <div className=" max-w-screen-sm mx-auto mb-16">
@@ -23,6 +32,38 @@ export default function SinglePost({ content, meta, title, keywords }) {
           ))}
         </div>
         <div dangerouslySetInnerHTML={{ __html: content || "" }}></div>
+        <div className="my-4">
+          {!showDeleteConfirm && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="btn bg-red-500 hover:bg-red-700"
+            >
+              Delete post
+            </button>
+          )}
+
+          {showDeleteConfirm && (
+            <div>
+              <div className="grid grid-cols-2 gap-x-4">
+                <button
+                  className="btn bg-stone-400 hover:bg-stone-700"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn bg-red-500 hover:bg-red-700"
+                  onClick={handlePostDelete}
+                >
+                  Delete
+                </button>
+              </div>
+              <p className="mb-2 py-1 text-center bg-red-200 w-full block">
+                Are you sure? This action is irreversable
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
