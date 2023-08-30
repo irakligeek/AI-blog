@@ -1,24 +1,48 @@
-import React, { useCallback, useState } from "react";
-import { Context } from "react";
+import React, { useCallback, useReducer, useState } from "react";
 
 const PostsContext = React.createContext({});
 export default PostsContext;
 
-export const PostsProvider = ({ children }) => {
-  const [posts, setPosts] = React.useState([]);
-  const [noMorePosts, setNoMorePosts] = useState(false);
+function postsReducer(state, action) {
+  //console.log(action);
+  switch (action.type) {
+    case "SET_POSTS":
+      let newPosts = [...state];
 
-  const setPostsFromSSR = useCallback((postsFromSSR = []) => {
-    setPosts((val) => {
-      const newPosts = [...val];
-      postsFromSSR.forEach((post) => {
+      action.posts.forEach((post) => {
         const exists = newPosts.find((item) => item._id === post._id);
         if (!exists) {
           newPosts.push(post);
         }
       });
       return newPosts;
-    });
+
+    case "DELETE_POSTS":
+      let newPosts2 = [];
+      state.forEach((item) => {
+        if (item._id !== action.postId) {
+          newPosts2.push(item);
+        }
+      });
+      return newPosts2;
+    default:
+      return state;
+  }
+}
+
+export const PostsProvider = ({ children }) => {
+  const [posts, dispatch] = useReducer(postsReducer, []);
+  const [noMorePosts, setNoMorePosts] = useState(false);
+
+  const setPostsFromSSR = useCallback((postsFromSSR = []) => {
+    //console.log("noMorePosts", postsFromSSR);
+    if (
+      postsFromSSR.length < 5 
+      //|| postsFromSSR.length === totalNumPosts
+    ) {
+      setNoMorePosts(true);
+    }
+    dispatch({ type: "SET_POSTS", posts: postsFromSSR });
   }, []);
 
   const getPosts = useCallback(
@@ -35,37 +59,20 @@ export const PostsProvider = ({ children }) => {
       const retreivedPosts = json.posts || [];
       const totalNumPosts = json.totalNumPosts;
 
+      dispatch({ type: "SET_POSTS", posts: retreivedPosts });
+
       if (
         retreivedPosts.length < 5 ||
         retreivedPosts.length === totalNumPosts
       ) {
         setNoMorePosts(true);
       }
-
-      setPosts((val) => {
-        const newPosts = [...val];
-        retreivedPosts.forEach((post) => {
-          const exists = newPosts.find((item) => item._id === post._id);
-          if (!exists) {
-            newPosts.push(post);
-          }
-        });
-        return newPosts;
-      });
     },
     []
   );
 
   const deletePost = useCallback((postId) => {
-    setPosts((oldPosts) => {
-      let newPosts = [];
-      oldPosts.forEach((item) => {
-        if(item._id !== postId){
-          newPosts.push(item);
-        }
-      });
-      return newPosts;
-    });
+    dispatch({ type: "DELETE_POSTS", postId });
   }, []);
 
   return (

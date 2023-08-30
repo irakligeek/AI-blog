@@ -19,12 +19,13 @@ export default async function handler(req, res) {
     const sig = req.headers["stripe-signature"]; //stripe signature coming from stripe
 
     let event;
+
     try {
       if (!sig || !webhookSecret) return;
       event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
 
-      if (event.type === "payment_intent.succeeded") { //only on succesful payments
-        
+      //only on succesful payments
+      if (event.type === "payment_intent.succeeded") {      
         //Grab event data
         const eventObj = event.data.object;
         const auth0Id = eventObj.metadata.sub;
@@ -48,10 +49,11 @@ export default async function handler(req, res) {
             upsert: true,
           }
         );
+
+        //console.log("userProfile:", userProfile);
       } else {
         console.log("Unhandled Stripe event", event.type);
       }
-
     } catch (error) {
       console.log("Error occurred processing payment", error);
       return res.status(400).send("Error occurred processing payment", error);
